@@ -1,4 +1,4 @@
-#define LED 3
+#define LED 1
 
 void setup() {
   // put your setup code here, to run once:
@@ -11,10 +11,19 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
+  ledON();
+  delay(200);
+
+  ledOFF();
+  delay(200);
 }
 
-
 void ledON() {
-  Serial.println(
+  Serial.println("LED ON");
+  digitalWrite(LED, LOW);
+}
+
+void ledOFF() {
+  Serial.println("LED OFF");
+  digitalWrite(LED, HIGH);
 }
