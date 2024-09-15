@@ -1,4 +1,4 @@
-#include <controller.h>
+ #include <controller.h>
 #include <HTTPClient.h>
 #include <ESP32Servo.h>
 
@@ -8,10 +8,10 @@
 // #define LED_3 x 
 // #define LED_4 x 
 
-#define MOTOR_1_FORWARD 6
-#define MOTOR_1_BACKWARD 4
-#define MOTOR_2_FORWARD 5
-#define MOTOR_2_BACKWARD 7
+#define MOTOR_1_FORWARD 4
+#define MOTOR_1_BACKWARD 6
+#define MOTOR_2_FORWARD 7
+#define MOTOR_2_BACKWARD 5
 #define SERVO_1 2 // pins 2,4,12-19,21-23,25-27,32-33 are recommended
 
 #define CONTROLLER_SENSITIVITY 64 // out of 128
@@ -23,13 +23,14 @@
 #define IP 173 // expands to 192.168.1.173
 #define PASS "brum" // Add this to the end of the url 192.168.1.173/brum
 
+
 Controller c(IP, PASS);
-// String serverPath = "http://192.168.1.138:8080";
-// String direction = "/stop";
 
 Servo servo = Servo();
 bool buttonPressed = false;
 bool movingUp = false;
+int direction = 0;
+bool driving = false;
 
 void a_callback(bool pressed) {
   moveServo(true);
@@ -41,45 +42,54 @@ void b_callback(bool pressed) {
 
 void x_callback(bool pressed){
   movingUp = true;
-  buttonPressed ^= pressed;
+  buttonPressed = pressed;
 }
 
 void y_callback(bool pressed){
   movingUp = false;
-  buttonPressed ^= pressed;
+  buttonPressed = pressed;
 }
 
-void joystick_callback(int8_t x, int8_t y) {
-  // Joystick changed position
-  // HTTPClient http;
-  String newDirection = "";
 
+void fw_callback(bool pressed) {
+   driving = pressed;
+   direction = 1; 
+}
+
+void bw_callback(bool pressed) {
+   driving = pressed;
+   direction = 2; 
+}
+
+void l_callback(bool pressed) {
+   driving = pressed;
+   direction = 3;
+}
+
+void r_callback(bool pressed) {
+   driving = pressed;
+   direction = 4;
+}
+
+
+
+void joystick_callback(int8_t x, int8_t y) {
   if (y > CONTROLLER_SENSITIVITY){
     forward();
-    newDirection = "/forward";
   }
   else if (y < -CONTROLLER_SENSITIVITY) {
     backward();
-    newDirection = "/backward";
   }
   else if (x > CONTROLLER_SENSITIVITY){
     left();
-    newDirection = "/left";
   }
   else if (x < -CONTROLLER_SENSITIVITY) {
     right();
-    newDirection = "/right";
   }
   else {
-    off();
-    newDirection="/stop";
+    stop();
   }
    
-  // if (newDirection != direction){
-  //   http.begin((serverPath + newDirection).c_str());
-  //   int httpResponse = http.GET();
-  //   http.end();
-  // }
 }
 
 void setup() {
@@ -95,7 +105,12 @@ void setup() {
   c.on_b(&b_callback);
   c.on_x(&x_callback);
   c.on_y(&y_callback);
+  c.on_fw(&fw_callback);
+  c.on_bw(&bw_callback);
+  c.on_l(&l_callback);
+  c.on_r(&r_callback);
   c.on_joystick(&joystick_callback);
+
 
   c.init();
   // NOTE: This is for the leds:
@@ -110,6 +125,24 @@ void loop() {
   if (buttonPressed){
     moveServoContinous(movingUp);
   }
+
+  if (driving){
+     if (direction == 1){
+       forward();
+     }
+     else if (direction == 2){
+       backward();
+     }
+     else if (direction == 3){
+       left();
+     }
+     else if (direction == 4){
+       right();
+     }
+   }
+   else {
+     stop();
+   }
 
 }
 
@@ -141,7 +174,7 @@ void right(){
 	digitalWrite(MOTOR_2_BACKWARD, HIGH);
 }
 
-void off(){
+void stop(){
 	digitalWrite(MOTOR_1_FORWARD, LOW);
 	digitalWrite(MOTOR_2_FORWARD, LOW);
 	digitalWrite(MOTOR_1_BACKWARD, LOW);
@@ -177,4 +210,3 @@ void LedOn(int led) {
 void LedOff(int led) {
   digitalWrite(led, LOW);
 }
-

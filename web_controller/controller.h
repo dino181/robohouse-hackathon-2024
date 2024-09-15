@@ -150,6 +150,10 @@ class Controller {
     void on_b(void(*callback_b)(bool));
     void on_x(void(*callback_x)(bool));
     void on_y(void(*callback_y)(bool));
+    void on_fw(void(*callback_fw)(bool));
+    void on_bw(void(*callback_bw)(bool));
+    void on_l(void(*callback_l)(bool));
+    void on_r(void(*callback_r)(bool));
 
     void init();
 
@@ -170,6 +174,10 @@ class Controller {
     static void(*callback_b)(bool);
     static void(*callback_x)(bool);
     static void(*callback_y)(bool);
+    static void(*callback_fw)(bool);
+    static void(*callback_bw)(bool);
+    static void(*callback_l)(bool);
+    static void(*callback_r)(bool);
 
     static char* wifi_ssid;
     static char* wifi_password;

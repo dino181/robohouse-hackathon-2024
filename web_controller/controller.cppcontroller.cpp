@@ -18,6 +18,10 @@ void(*Controller::callback_a)(bool) = nullptr;
 void(*Controller::callback_b)(bool) = nullptr;
 void(*Controller::callback_x)(bool) = nullptr;
 void(*Controller::callback_y)(bool) = nullptr;
+void(*Controller::callback_fw)(bool) = nullptr;
+void(*Controller::callback_bw)(bool) = nullptr;
+void(*Controller::callback_l)(bool) = nullptr;
+void(*Controller::callback_r)(bool) = nullptr;
 
 Controller::Controller(uint8_t ip, String wsp) :
   ws_password(wsp),
@@ -87,7 +91,26 @@ void Controller::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     if (callback_y != nullptr) {
       callback_y(data[1]);
     }
+  }else if (id == 5) {
+    if (callback_fw != nullptr) {
+      callback_fw(data[1]);
+    }
+  } else if (id == 6) {
+      if (callback_bw != nullptr) {
+        callback_bw(data[1]);
+      }
+    }
+  else if (id == 7) {
+      if (callback_l != nullptr) {
+        callback_l(data[1]);
+      }
+    }
+  else if (id == 8) {
+      if (callback_r != nullptr) {
+        callback_r(data[1]);
+      }
   }
+
 }
 
 void Controller::onEvent(
@@ -135,7 +158,15 @@ void Controller::on_x(void(*callback_x)(bool)) {
 void Controller::on_y(void(*callback_y)(bool)) {
   this->callback_y = callback_y;
 }
-
+void Controller::on_fw(void(*callback_fw)(bool)) {
+  this->callback_fw = callback_fw;
+}void Controller::on_bw(void(*callback_bw)(bool)) {
+  this->callback_bw = callback_bw;
+}void Controller::on_l(void(*callback_l)(bool)) {
+  this->callback_l = callback_l;
+}void Controller::on_r(void(*callback_r)(bool)) {
+  this->callback_r = callback_r;
+}
 
 
 String Controller::generate_interface() {
